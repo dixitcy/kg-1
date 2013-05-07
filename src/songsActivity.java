@@ -1,96 +1,77 @@
 package com.dcy.karaokegarage;
 
-import android.content.ContentValues;
-import android.content.Context;
+
+import android.app.Activity;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.widget.ListView;
 
-public class Songdatabase {
-  public static final String TAG = "Songbase";
-	public static final String KEY_ROWID = "_id";
-	public static final String KEY_SONGNAME = "song_name";
-	public static final String KEY_ALBUMNAME = "album_name";
-	public static final String KEY_LANGUAGE = "_lang";
+public class songsActivity extends Activity {
+	static final String[] FROM = { Songdatabase.KEY_SONGNAME,
+			Songdatabase.KEY_ALBUMNAME, Songdatabase.KEY_LANGUAGE };
+	static final int[] TO = { R.id.songtitle, R.id.artisttitle,
+			R.id.text_createdat };
 
-	private static final String DATABASE_NAME = "songlist.db";
-	private static final String DATABASE_TABLE = "songstable";
-	private static final int DATABASE_VERSION = 1;
-
-	DbHelper ourdbhelper;
-	Context ourcontext;
-	SQLiteDatabase ourdatabase;
+	public static String songname = "aisdv";
+	public static String albumname = "aisdv";
+	public static String language = "aisdv";
+	SimpleCursorAdapter adapter;
 	Cursor cursor;
+	ListView list;
 
-	private static class DbHelper extends SQLiteOpenHelper {
+	@SuppressWarnings("deprecation")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
 
-		public DbHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.songslist);
+		songname = "Stairway to Heaven";
+		albumname = "Led Zeppelin";
+		language = "English";
 
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + DATABASE_TABLE + " (" + KEY_ROWID
-					+ " INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_SONGNAME
-					+ " TEXT NOT NULL, " + KEY_ALBUMNAME + " TEXT NOT NULL, "
-					+ KEY_LANGUAGE + " TEXT NOT NULL);");
-			Log.d(TAG, "oncreate with sql");
-		}
+		Songdatabase entry = new Songdatabase(this);
+		entry.open();
+		entry.createEntry(songname, albumname, language);
 
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE);
-			onCreate(db);
-		}
+		entry.close();
+		songname = "Pani da";
+		albumname = "vicky donor";
+		language = "hindi";
+
+		entry.open();
+		entry.createEntry(songname, albumname, language);
+
+		entry.close();
+		songname = "Why dis Kolaveri di?";
+		albumname = "Three";
+		language = "Tamil";
+
+		entry.open();
+		entry.createEntry(songname, albumname, language);
+
+		entry.close();
+		songname = "Hey Jude";
+		albumname = "The Beatles";
+		language = "English";
+
+		entry.open();
+		entry.createEntry(songname, albumname, language);
+
+		entry.close();
+
+		ListView list = (ListView) findViewById(R.id.list);
+
+		cursor = ((kgapp) getApplication()).info.open().query();
+		adapter = new SimpleCursorAdapter(this, R.layout.row, cursor, FROM, TO);
+
+		list.setAdapter(adapter);
+
+		// info.open();
+		// String data = info.getData();
+		// ;
+		// info.close();
 
 	}
 
-	public Songdatabase(Context c) {
-		ourcontext = c;
-	}
-
-	public Songdatabase open() {
-		ourdbhelper = new DbHelper(ourcontext);
-		ourdatabase = ourdbhelper.getWritableDatabase();
-		return this;
-	}
-
-	public void close() {
-		ourdbhelper.close();
-	}
-
-	public long createEntry(String songname, String albumname, String language) {
-
-		ContentValues values = new ContentValues();
-		values.put(KEY_SONGNAME, songname);
-		values.put(KEY_ALBUMNAME, albumname);
-		values.put(KEY_LANGUAGE, language);
-		return ourdatabase.insert(DATABASE_TABLE, null, values);
-	}
-
-	public Cursor query() {
-
-		Cursor cursor = ourdatabase.query(DATABASE_TABLE, null, null, null,
-				null, null, null);
-
-		/*
-		 * String result = "";
-		 * 
-		 * int iRow = cursor.getColumnIndex(KEY_ROWID); int iSongname =
-		 * cursor.getColumnIndex(KEY_SONGNAME); int iAlbunmname =
-		 * cursor.getColumnIndex(KEY_ALBUMNAME); int iLanguage =
-		 * cursor.getColumnIndex(KEY_LANGUAGE);
-		 * 
-		 * for (cursor.moveToFirst(); !cursor.isAfterLast();
-		 * cursor.moveToNext()) { result = result + cursor.getString(iRow) + " "
-		 * + cursor.getString(iSongname) + " " + cursor.getString(iAlbunmname) +
-		 * " " + cursor.getString(iLanguage) + "\n";
-		 * 
-		 * }
-		 */
-
-		return cursor;
-	}
 }
-
